@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sorting Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1 class="brand">Sorting Visualizer</h1>
+      <p class="tagline">Watch comparison-based sorts unfold step by step.</p>
+    </header>
+
+    <section class="controls" aria-label="Visualizer controls">
+      <div class="control-group control-group--input">
+        <label for="array-input">Array</label>
+        <div class="input-row">
+          <input
+            type="text"
+            id="array-input"
+            placeholder="e.g. 64, 34, 25, 12, 22, 11, 90"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button type="button" id="autofill-btn" class="btn btn--secondary">Auto-fill</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="algorithm-select">Algorithm</label>
+        <select id="algorithm-select">
+          <option value="bubble">Bubble Sort</option>
+          <option value="selection">Selection Sort</option>
+          <option value="insertion">Insertion Sort</option>
+          <option value="merge">Merge Sort</option>
+          <option value="quick">Quick Sort</option>
+          <option value="heap">Heap Sort</option>
+        </select>
+      </div>
+
+      <div class="control-group control-group--actions">
+        <span class="control-label">Playback</span>
+        <div class="btn-row">
+          <button type="button" id="start-btn" class="btn btn--primary">Start</button>
+          <button type="button" id="pause-btn" class="btn btn--secondary" disabled>Pause</button>
+          <button type="button" id="reset-btn" class="btn btn--ghost">Reset</button>
+        </div>
+      </div>
+
+      <div class="control-group control-group--speed">
+        <label for="speed-slider">
+          Speed
+          <span id="speed-value" class="speed-value">50</span>
+        </label>
+        <input type="range" id="speed-slider" min="1" max="100" value="50" />
+      </div>
+    </section>
+
+    <main class="visualizer" aria-label="Bar chart visualization">
+      <div id="bars-container" class="bars-container" role="img" aria-label="Sorting bars"></div>
+    </main>
+
+    <aside class="sidebar">
+      <section class="panel" aria-labelledby="stats-heading">
+        <h2 id="stats-heading" class="panel__title">Stats</h2>
+        <dl class="stats">
+          <div class="stat">
+            <dt>Comparisons</dt>
+            <dd id="comparisons-count">0</dd>
+          </div>
+          <div class="stat">
+            <dt>Swaps</dt>
+            <dd id="swaps-count">0</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="panel" aria-labelledby="complexity-heading">
+        <h2 id="complexity-heading" class="panel__title">Complexity</h2>
+        <dl class="complexity" id="complexity-info">
+          <div class="complexity__row">
+            <dt>Best</dt>
+            <dd id="complexity-best">O(n)</dd>
+          </div>
+          <div class="complexity__row">
+            <dt>Average</dt>
+            <dd id="complexity-avg">O(n²)</dd>
+          </div>
+          <div class="complexity__row">
+            <dt>Worst</dt>
+            <dd id="complexity-worst">O(n²)</dd>
+          </div>
+          <div class="complexity__row">
+            <dt>Space</dt>
+            <dd id="complexity-space">O(1)</dd>
+          </div>
+        </dl>
+        <p id="complexity-desc" class="complexity__desc">
+          Repeatedly swaps adjacent elements that are out of order.
+        </p>
+      </section>
+    </aside>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
