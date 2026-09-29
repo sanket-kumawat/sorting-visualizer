@@ -21,7 +21,15 @@ let timerId = null;
 let isRunning = false;
 
 let comparisons = 0;
-let swaps = 0;
+/** Swaps + set writes (merge sort). */
+let writes = 0;
+let totalSteps = 0;
+/** Accumulated ms while paused/finished; excludes the current running segment. */
+let elapsedMs = 0;
+/** performance.now() when the current running segment started; null when not running. */
+let runStartedAt = null;
+let elapsedRafId = null;
+
 /** Indices marked sorted so later steps keep the green state. */
 const sortedIndices = new Set();
 
@@ -37,6 +45,8 @@ const speedSlider = document.getElementById('speed-slider');
 const speedValue = document.getElementById('speed-value');
 const comparisonsEl = document.getElementById('comparisons-count');
 const swapsEl = document.getElementById('swaps-count');
+const stepsEl = document.getElementById('steps-count');
+const timeEl = document.getElementById('time-count');
 
 const algorithms = {
   bubble: bubbleSort,
@@ -92,16 +102,69 @@ function getDelayMs() {
   );
 }
 
+function getElapsedMs() {
+  if (runStartedAt !== null) {
+    return elapsedMs + (performance.now() - runStartedAt);
+  }
+  return elapsedMs;
+}
+
+function formatElapsed(ms) {
+  return `${(ms / 1000).toFixed(2)}s`;
+}
+
 function updateStats() {
   comparisonsEl.textContent = String(comparisons);
-  swapsEl.textContent = String(swaps);
+  swapsEl.textContent = String(writes);
+  stepsEl.textContent = `${stepIndex} / ${totalSteps}`;
+  timeEl.textContent = formatElapsed(getElapsedMs());
 }
 
 function clearStats() {
   comparisons = 0;
-  swaps = 0;
+  writes = 0;
+  totalSteps = 0;
+  elapsedMs = 0;
+  runStartedAt = null;
+  stopElapsedLoop();
   sortedIndices.clear();
   updateStats();
+}
+
+function startElapsedClock() {
+  runStartedAt = performance.now();
+  startElapsedLoop();
+}
+
+function pauseElapsedClock() {
+  if (runStartedAt !== null) {
+    elapsedMs += performance.now() - runStartedAt;
+    runStartedAt = null;
+  }
+  stopElapsedLoop();
+  updateStats();
+}
+
+function startElapsedLoop() {
+  stopElapsedLoop();
+  const paint = () => {
+    timeEl.textContent = formatElapsed(getElapsedMs());
+    elapsedRafId = requestAnimationFrame(paint);
+  };
+  elapsedRafId = requestAnimationFrame(paint);
+}
+
+function stopElapsedLoop() {
+  if (elapsedRafId !== null) {
+    cancelAnimationFrame(elapsedRafId);
+    elapsedRafId = null;
+  }
+}
+
+/** Count compare / swap / set from a step's type. */
+function countStepType(type) {
+  if (type === 'compare') comparisons += 1;
+  if (type === 'swap' || type === 'set') writes += 1;
 }
 
 /** Mid-sort pause: steps remain and stepIndex is between 0 and length. */
@@ -171,9 +234,8 @@ function precomputeSteps(algoFn, arr) {
 
 function applyStep(step) {
   currentArray = step.array.slice();
+  countStepType(step.type);
 
-  if (step.type === 'compare') comparisons += 1;
-  if (step.type === 'swap') swaps += 1;
   if (step.type === 'sorted') {
     for (const i of step.indices) sortedIndices.add(i);
   }
@@ -214,11 +276,14 @@ function tick() {
 function finishPlayback() {
   clearTimer();
   isRunning = false;
+  pauseElapsedClock();
+  // Keep stepIndex at total so the counter reads e.g. 190 / 190
+  stepIndex = totalSteps;
   steps = [];
-  stepIndex = 0;
 
   for (let i = 0; i < currentArray.length; i++) sortedIndices.add(i);
   render({ type: 'sorted', indices: [...sortedIndices], array: currentArray });
+  updateStats();
   syncControlState();
 }
 
@@ -244,6 +309,7 @@ function start() {
   // Resume from the same stepIndex after a pause
   if (isPaused()) {
     isRunning = true;
+    startElapsedClock();
     syncControlState();
     scheduleNext();
     return;
@@ -269,9 +335,12 @@ function start() {
   }
 
   steps = precomputeSteps(algoFn, currentArray);
+  totalSteps = steps.length;
   stepIndex = 0;
   isRunning = true;
+  startElapsedClock();
   syncControlState();
+  updateStats();
   render({ type: null, indices: [], array: currentArray });
   scheduleNext();
 }
@@ -281,12 +350,14 @@ function pauseOrResume() {
   if (isRunning) {
     isRunning = false;
     clearTimer();
+    pauseElapsedClock();
     syncControlState();
     return;
   }
 
   if (isPaused()) {
     isRunning = true;
+    startElapsedClock();
     syncControlState();
     scheduleNext();
   }
