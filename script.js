@@ -24,11 +24,6 @@ let comparisons = 0;
 /** Swaps + set writes (merge sort). */
 let writes = 0;
 let totalSteps = 0;
-/** Accumulated ms while paused/finished; excludes the current running segment. */
-let elapsedMs = 0;
-/** performance.now() when the current running segment started; null when not running. */
-let runStartedAt = null;
-let elapsedRafId = null;
 
 /** Indices marked sorted so later steps keep the green state. */
 const sortedIndices = new Set();
@@ -48,7 +43,6 @@ const speedValue = document.getElementById('speed-value');
 const comparisonsEl = document.getElementById('comparisons-count');
 const swapsEl = document.getElementById('swaps-count');
 const stepsEl = document.getElementById('steps-count');
-const timeEl = document.getElementById('time-count');
 
 const algorithms = {
   bubble: bubbleSort,
@@ -187,63 +181,18 @@ function getDelayMs() {
   );
 }
 
-function getElapsedMs() {
-  if (runStartedAt !== null) {
-    return elapsedMs + (performance.now() - runStartedAt);
-  }
-  return elapsedMs;
-}
-
-function formatElapsed(ms) {
-  return `${(ms / 1000).toFixed(2)}s`;
-}
-
 function updateStats() {
   comparisonsEl.textContent = String(comparisons);
   swapsEl.textContent = String(writes);
   stepsEl.textContent = `${stepIndex} / ${totalSteps}`;
-  timeEl.textContent = formatElapsed(getElapsedMs());
 }
 
 function clearStats() {
   comparisons = 0;
   writes = 0;
   totalSteps = 0;
-  elapsedMs = 0;
-  runStartedAt = null;
-  stopElapsedLoop();
   sortedIndices.clear();
   updateStats();
-}
-
-function startElapsedClock() {
-  runStartedAt = performance.now();
-  startElapsedLoop();
-}
-
-function pauseElapsedClock() {
-  if (runStartedAt !== null) {
-    elapsedMs += performance.now() - runStartedAt;
-    runStartedAt = null;
-  }
-  stopElapsedLoop();
-  updateStats();
-}
-
-function startElapsedLoop() {
-  stopElapsedLoop();
-  const paint = () => {
-    timeEl.textContent = formatElapsed(getElapsedMs());
-    elapsedRafId = requestAnimationFrame(paint);
-  };
-  elapsedRafId = requestAnimationFrame(paint);
-}
-
-function stopElapsedLoop() {
-  if (elapsedRafId !== null) {
-    cancelAnimationFrame(elapsedRafId);
-    elapsedRafId = null;
-  }
 }
 
 /** Count compare / swap / set from a step's type. */
@@ -369,7 +318,6 @@ function tick() {
 function finishPlayback() {
   clearTimer();
   isRunning = false;
-  pauseElapsedClock();
   // Keep steps so the user can step back after finishing
   stepIndex = totalSteps;
 
@@ -380,7 +328,7 @@ function finishPlayback() {
 }
 
 /**
- * Stop the timer, restore originalArray, clear stats, stepIndex = 0.
+ * Stop playback timer, restore originalArray, clear stats, stepIndex = 0.
  * Does not change originalArray itself.
  */
 function reset() {
@@ -401,7 +349,6 @@ function start() {
   // Resume from the same stepIndex after a pause
   if (isPaused()) {
     isRunning = true;
-    startElapsedClock();
     syncControlState();
     scheduleNext();
     return;
@@ -430,7 +377,6 @@ function start() {
   totalSteps = steps.length;
   stepIndex = 0;
   isRunning = true;
-  startElapsedClock();
   syncControlState();
   updateStats();
   render({ type: null, indices: [], array: currentArray });
@@ -442,14 +388,12 @@ function pauseOrResume() {
   if (isRunning) {
     isRunning = false;
     clearTimer();
-    pauseElapsedClock();
     syncControlState();
     return;
   }
 
   if (isPaused()) {
     isRunning = true;
-    startElapsedClock();
     syncControlState();
     scheduleNext();
   }
