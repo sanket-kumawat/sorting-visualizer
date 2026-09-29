@@ -50,6 +50,11 @@ const timeEl = document.getElementById('time-count');
 
 const algorithms = {
   bubble: bubbleSort,
+  selection: selectionSort,
+  insertion: insertionSort,
+  merge: mergeSort,
+  quick: quickSort,
+  heap: heapSort,
 };
 
 /**
