@@ -76,6 +76,7 @@ const codeCopyBtn = document.getElementById('code-copy-btn');
 
 /** Remembered for the session; default JavaScript. */
 let selectedLanguage = 'javascript';
+let copyResetTimer = null;
 
 function readStoredTheme() {
   try {
@@ -144,9 +145,9 @@ function updateCodePanel(
   const byAlgo = codeSnippets[algoKey];
   const source = byAlgo && byAlgo[lang];
   codeView.textContent = source || '// No snippet available.';
-  codeCopyBtn.textContent = 'Copy';
-  codeCopyBtn.title = 'Copy code';
-  codeCopyBtn.classList.remove('is-copied');
+  window.clearTimeout(copyResetTimer);
+  copyResetTimer = null;
+  resetCopyButton();
 
   for (const btn of codeLangTabs.querySelectorAll('.code-tabs__btn')) {
     btn.classList.toggle('is-active', btn.dataset.lang === lang);
@@ -155,6 +156,13 @@ function updateCodePanel(
       btn.dataset.lang === lang ? 'true' : 'false',
     );
   }
+}
+
+function resetCopyButton() {
+  codeCopyBtn.textContent = 'Copy';
+  codeCopyBtn.title = 'Copy code';
+  codeCopyBtn.disabled = false;
+  codeCopyBtn.classList.remove('is-copied');
 }
 
 function fallbackCopyText(text) {
@@ -183,7 +191,13 @@ async function copyCurrentCode() {
 
     codeCopyBtn.textContent = 'Copied';
     codeCopyBtn.title = 'Code copied';
+    codeCopyBtn.disabled = true;
     codeCopyBtn.classList.add('is-copied');
+    window.clearTimeout(copyResetTimer);
+    copyResetTimer = window.setTimeout(() => {
+      resetCopyButton();
+      copyResetTimer = null;
+    }, 3000);
   } catch {
     codeCopyBtn.textContent = 'Selected';
     codeCopyBtn.title = 'Press Ctrl or Command + C to copy the selected code';
