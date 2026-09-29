@@ -2,7 +2,7 @@ const MAX_ITEMS = 100;
 const DEFAULT_RANDOM_N = 20;
 const RANDOM_MIN = 5;
 const RANDOM_MAX = 100;
-const LABEL_THRESHOLD = 40;
+const LABEL_THRESHOLD = 30;
 
 /** Slider 1-100 → 500ms-5ms. Read fresh every tick so speed can change mid-run. */
 const DELAY_AT_MIN_SPEED = 500;
@@ -40,6 +40,8 @@ const algorithmSelect = document.getElementById('algorithm-select');
 const barsContainer = document.getElementById('bars-container');
 const startBtn = document.getElementById('start-btn');
 const pauseBtn = document.getElementById('pause-btn');
+const stepBackBtn = document.getElementById('step-back-btn');
+const stepFwdBtn = document.getElementById('step-fwd-btn');
 const resetBtn = document.getElementById('reset-btn');
 const speedSlider = document.getElementById('speed-slider');
 const speedValue = document.getElementById('speed-value');
@@ -250,20 +252,28 @@ function countStepType(type) {
   if (type === 'swap' || type === 'set') writes += 1;
 }
 
-/** Mid-sort pause: steps remain and stepIndex is between 0 and length. */
+/** Mid-sort pause, or finished with steps kept for scrubbing. */
 function isPaused() {
   return (
     !isRunning && steps.length > 0 && stepIndex > 0 && stepIndex < steps.length
   );
 }
 
+function hasPreparedSteps() {
+  return steps.length > 0;
+}
+
 function syncControlState() {
   const paused = isPaused();
-  const inSession = isRunning || paused;
+  const scrubbing = hasPreparedSteps() && stepIndex > 0 && stepIndex < steps.length;
+  const inSession = isRunning || scrubbing;
 
   startBtn.disabled = isRunning;
   pauseBtn.disabled = !inSession;
   pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+  stepBackBtn.disabled = isRunning || !hasPreparedSteps() || stepIndex <= 0;
+  stepFwdBtn.disabled =
+    isRunning || (hasPreparedSteps() && stepIndex >= steps.length);
 
   arrayInput.disabled = inSession;
   autofillBtn.disabled = inSession;
@@ -360,9 +370,8 @@ function finishPlayback() {
   clearTimer();
   isRunning = false;
   pauseElapsedClock();
-  // Keep stepIndex at total so the counter reads e.g. 190 / 190
+  // Keep steps so the user can step back after finishing
   stepIndex = totalSteps;
-  steps = [];
 
   for (let i = 0; i < currentArray.length; i++) sortedIndices.add(i);
   render({ type: 'sorted', indices: [...sortedIndices], array: currentArray });
@@ -446,6 +455,126 @@ function pauseOrResume() {
   }
 }
 
+/** Ensure steps exist from the current original array; returns false on error. */
+function ensureStepsReady() {
+  if (hasPreparedSteps()) return true;
+
+  const result = parseInput(arrayInput.value);
+  if (!result.ok) {
+    showError(result.error);
+    return false;
+  }
+
+  clearError();
+  currentArray = result.values;
+  originalArray = result.values.slice();
+
+  const algoFn = algorithms[algorithmSelect.value];
+  if (!algoFn) {
+    showError('That algorithm is not implemented yet.');
+    return false;
+  }
+
+  clearStats();
+  steps = precomputeSteps(algoFn, currentArray);
+  totalSteps = steps.length;
+  stepIndex = 0;
+  updateStats();
+  return true;
+}
+
+/** Replay steps[0..targetIndex) to rebuild array, stats, and sorted set. */
+function rebuildStateTo(targetIndex) {
+  comparisons = 0;
+  writes = 0;
+  sortedIndices.clear();
+  currentArray = originalArray.slice();
+
+  for (let i = 0; i < targetIndex; i++) {
+    const step = steps[i];
+    currentArray = step.array.slice();
+    countStepType(step.type);
+    if (step.type === 'sorted') {
+      for (const idx of step.indices) sortedIndices.add(idx);
+    }
+  }
+
+  stepIndex = targetIndex;
+
+  if (targetIndex === 0) {
+    render({ type: null, indices: [], array: currentArray });
+  } else {
+    render(steps[targetIndex - 1]);
+  }
+  updateStats();
+}
+
+function stepForward() {
+  if (isRunning) return;
+  if (!ensureStepsReady()) return;
+
+  if (stepIndex >= steps.length) {
+    syncControlState();
+    return;
+  }
+
+  const step = steps[stepIndex];
+  stepIndex += 1;
+  applyStep(step);
+
+  if (step.type === 'done' || stepIndex >= steps.length) {
+    stepIndex = totalSteps;
+    for (let i = 0; i < currentArray.length; i++) sortedIndices.add(i);
+    render({ type: 'sorted', indices: [...sortedIndices], array: currentArray });
+    updateStats();
+  }
+
+  syncControlState();
+}
+
+function stepBackward() {
+  if (isRunning || !hasPreparedSteps() || stepIndex <= 0) return;
+  rebuildStateTo(stepIndex - 1);
+  syncControlState();
+}
+
+function isTypingTarget(el) {
+  if (!el || !(el instanceof Element)) return false;
+  const tag = el.tagName;
+  return (
+    tag === 'INPUT' ||
+    tag === 'TEXTAREA' ||
+    tag === 'SELECT' ||
+    el.isContentEditable
+  );
+}
+
+function onKeyDown(e) {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (isTypingTarget(e.target)) return;
+
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (isRunning || isPaused()) {
+      pauseOrResume();
+    } else {
+      start();
+    }
+    return;
+  }
+
+  if (e.code === 'ArrowRight') {
+    e.preventDefault();
+    stepForward();
+    return;
+  }
+
+  if (e.code === 'ArrowLeft') {
+    e.preventDefault();
+    stepBackward();
+  }
+}
+
 /** Fill the input with n random ints and render. */
 function generateRandomArray(n = DEFAULT_RANDOM_N) {
   const values = Array.from(
@@ -499,7 +628,10 @@ autofillBtn.addEventListener('click', () => generateRandomArray());
 algorithmSelect.addEventListener('change', onAlgorithmChange);
 startBtn.addEventListener('click', start);
 pauseBtn.addEventListener('click', pauseOrResume);
+stepBackBtn.addEventListener('click', stepBackward);
+stepFwdBtn.addEventListener('click', stepForward);
 resetBtn.addEventListener('click', reset);
+document.addEventListener('keydown', onKeyDown);
 
 speedSlider.addEventListener('input', () => {
   speedValue.textContent = speedSlider.value;

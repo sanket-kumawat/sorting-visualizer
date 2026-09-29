@@ -50,8 +50,11 @@
         <div class="btn-row">
           <button type="button" id="start-btn" class="btn btn--primary">Start</button>
           <button type="button" id="pause-btn" class="btn btn--secondary" disabled>Pause</button>
+          <button type="button" id="step-back-btn" class="btn btn--ghost" title="Step back (←)" aria-label="Step back">‹</button>
+          <button type="button" id="step-fwd-btn" class="btn btn--ghost" title="Step forward (→)" aria-label="Step forward">›</button>
           <button type="button" id="reset-btn" class="btn btn--ghost">Reset</button>
         </div>
+        <p class="shortcuts-hint">Space pause · ← → step</p>
       </div>
 
       <div class="control-group control-group--speed">
@@ -64,6 +67,12 @@
     </section>
 
     <main class="visualizer" aria-label="Bar chart visualization">
+      <ul class="legend" aria-label="Color legend">
+        <li><span class="legend__swatch legend__swatch--compare"></span>Compare</li>
+        <li><span class="legend__swatch legend__swatch--swap"></span>Swap / Set</li>
+        <li><span class="legend__swatch legend__swatch--pivot"></span>Pivot</li>
+        <li><span class="legend__swatch legend__swatch--sorted"></span>Sorted</li>
+      </ul>
       <div id="bars-container" class="bars-container" role="img" aria-label="Sorting bars"></div>
     </main>
 
