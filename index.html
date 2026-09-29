@@ -6,7 +6,7 @@
   <title>Sorting Visualizer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -50,8 +50,16 @@
         <div class="btn-row">
           <button type="button" id="start-btn" class="btn btn--primary">Start</button>
           <button type="button" id="pause-btn" class="btn btn--secondary" disabled>Pause</button>
-          <button type="button" id="step-back-btn" class="btn btn--ghost" title="Step back (←)" aria-label="Step back">‹</button>
-          <button type="button" id="step-fwd-btn" class="btn btn--ghost" title="Step forward (→)" aria-label="Step forward">›</button>
+          <button type="button" id="step-back-btn" class="btn btn--ghost" title="Step back (←)" aria-label="Step back">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M10.5 3.5 6 8l4.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button type="button" id="step-fwd-btn" class="btn btn--ghost" title="Step forward (→)" aria-label="Step forward">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="m5.5 3.5 4.5 4.5-4.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
           <button type="button" id="reset-btn" class="btn btn--ghost">Reset</button>
         </div>
         <p class="shortcuts-hint">Space pause · ← → step</p>
