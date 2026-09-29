@@ -65,6 +65,11 @@ const complexityStable = document.getElementById('complexity-stable');
 const complexityDesc = document.getElementById('complexity-desc');
 const complexityHeading = document.getElementById('complexity-heading');
 const algorithmDefinition = document.getElementById('algorithm-definition');
+const codeLangTabs = document.getElementById('code-lang-tabs');
+const codeView = document.getElementById('code-view');
+
+/** Remembered for the session; default JavaScript. */
+let selectedLanguage = 'javascript';
 
 function updateComplexityPanel(key = algorithmSelect.value) {
   const meta = info[key];
@@ -78,6 +83,37 @@ function updateComplexityPanel(key = algorithmSelect.value) {
   complexityWorst.textContent = meta.worst;
   complexitySpace.textContent = meta.space;
   complexityStable.textContent = meta.stable ? 'Yes' : 'No';
+}
+
+function updateCodePanel(
+  algoKey = algorithmSelect.value,
+  lang = selectedLanguage,
+) {
+  const byAlgo = codeSnippets[algoKey];
+  const source = byAlgo && byAlgo[lang];
+  codeView.textContent = source || '// No snippet available.';
+
+  for (const btn of codeLangTabs.querySelectorAll('.code-tabs__btn')) {
+    btn.classList.toggle('is-active', btn.dataset.lang === lang);
+    btn.setAttribute('aria-selected', btn.dataset.lang === lang ? 'true' : 'false');
+  }
+}
+
+function buildCodeLangTabs() {
+  codeLangTabs.replaceChildren();
+  for (const { id, label } of CODE_LANGUAGES) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'code-tabs__btn';
+    btn.dataset.lang = id;
+    btn.textContent = label;
+    btn.setAttribute('role', 'tab');
+    btn.addEventListener('click', () => {
+      selectedLanguage = id;
+      updateCodePanel();
+    });
+    codeLangTabs.appendChild(btn);
+  }
 }
 
 /**
@@ -525,6 +561,7 @@ function onArrayInput() {
 
 function onAlgorithmChange() {
   updateComplexityPanel();
+  updateCodePanel();
   reset();
 }
 
@@ -544,7 +581,9 @@ speedSlider.addEventListener('input', () => {
 
 speedValue.textContent = speedSlider.value;
 syncControlState();
+buildCodeLangTabs();
 updateComplexityPanel();
+updateCodePanel();
 
 // Seed with a sample so the page isn't empty on load
 generateRandomArray(DEFAULT_RANDOM_N);

@@ -76,7 +76,8 @@ button:disabled {
     "header"
     "controls"
     "visualizer"
-    "sidebar";
+    "sidebar"
+    "code";
   gap: 1.25rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -454,6 +455,72 @@ button:disabled {
   line-height: 1.5;
 }
 
+/* —— Code panel —— */
+
+.code-panel {
+  grid-area: code;
+}
+
+.code-panel__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.code-panel__header .panel__title {
+  margin-bottom: 0;
+}
+
+.code-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.code-tabs__btn {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.code-tabs__btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.code-tabs__btn.is-active {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+  background: rgba(62, 207, 142, 0.08);
+}
+
+.code-block {
+  margin: 0;
+  max-height: 360px;
+  overflow: auto;
+  padding: 1rem 1.1rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.code-block code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre;
+  tab-size: 2;
+}
+
 .stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -537,7 +604,8 @@ button:disabled {
     grid-template-areas:
       "header header"
       "controls controls"
-      "visualizer sidebar";
+      "visualizer sidebar"
+      "code code";
     gap: 1.5rem;
     padding: 2rem 1.75rem 3rem;
   }
