@@ -44,9 +44,13 @@ const comparisonsEl = document.getElementById('comparisons-count');
 const swapsEl = document.getElementById('swaps-count');
 const stepsEl = document.getElementById('steps-count');
 const stepMessageEl = document.getElementById('step-message');
+const themeToggle = document.getElementById('theme-toggle');
+const themeToggleLabel = themeToggle.querySelector('.theme-switch__label');
 
 const IDLE_STEP_MESSAGE =
   'Press Start or step forward to see what the algorithm is doing.';
+const THEME_STORAGE_KEY = 'sorting-visualizer-theme';
+const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 const algorithms = {
   bubble: bubbleSort,
@@ -70,6 +74,41 @@ const codeView = document.getElementById('code-view');
 
 /** Remembered for the session; default JavaScript. */
 let selectedLanguage = 'javascript';
+
+function readStoredTheme() {
+  try {
+    const value = localStorage.getItem(THEME_STORAGE_KEY);
+    return value === 'light' || value === 'dark' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function applyTheme(theme, { persist = false } = {}) {
+  const nextTheme = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = nextTheme;
+  themeToggle.setAttribute('aria-checked', nextTheme === 'dark' ? 'true' : 'false');
+  themeToggleLabel.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
+  themeToggle.title =
+    nextTheme === 'dark' ? 'Use light theme' : 'Use dark theme';
+
+  if (persist) {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    } catch {}
+  }
+}
+
+function toggleTheme() {
+  const nextTheme =
+    document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(nextTheme, { persist: true });
+}
+
+function followSystemTheme(event) {
+  if (readStoredTheme()) return;
+  applyTheme(event.matches ? 'dark' : 'light');
+}
 
 function updateComplexityPanel(key = algorithmSelect.value) {
   const meta = info[key];
@@ -573,13 +612,21 @@ pauseBtn.addEventListener('click', pauseOrResume);
 stepBackBtn.addEventListener('click', stepBackward);
 stepFwdBtn.addEventListener('click', stepForward);
 resetBtn.addEventListener('click', reset);
+themeToggle.addEventListener('click', toggleTheme);
 document.addEventListener('keydown', onKeyDown);
+
+if (typeof systemThemeQuery.addEventListener === 'function') {
+  systemThemeQuery.addEventListener('change', followSystemTheme);
+} else {
+  systemThemeQuery.addListener(followSystemTheme);
+}
 
 speedSlider.addEventListener('input', () => {
   speedValue.textContent = speedSlider.value;
 });
 
 speedValue.textContent = speedSlider.value;
+applyTheme(document.documentElement.dataset.theme);
 syncControlState();
 buildCodeLangTabs();
 updateComplexityPanel();
