@@ -231,75 +231,44 @@ button:disabled {
   align-self: center;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--header-muted);
-  font-family: var(--font-display);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  color: var(--header-text);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    color var(--transition);
 }
 
 .theme-switch:hover {
-  color: var(--header-text);
-}
-
-.theme-switch__track {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  width: 48px;
-  height: 26px;
-  padding: 4px;
-  color: #a9adb2;
-  background: #15171a;
-  border: 1px solid #555960;
-  border-radius: var(--radius-sm);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 .theme-switch__icon {
-  z-index: 1;
-  width: 12px;
-  height: 12px;
-  transition: opacity var(--transition);
+  width: 20px;
+  height: 20px;
 }
 
 .theme-switch__icon--sun {
-  opacity: 1;
+  display: none;
 }
 
 .theme-switch__icon--moon {
-  justify-self: end;
-  opacity: 0.5;
-}
-
-.theme-switch__thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  background: var(--display-deep);
-  border: 1px solid #8b6926;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-  transition: transform var(--transition), background-color var(--transition);
-}
-
-:root[data-theme="dark"] .theme-switch__thumb {
-  transform: translateX(22px);
-  background: var(--focus);
-  border-color: #356c85;
+  display: block;
 }
 
 :root[data-theme="dark"] .theme-switch__icon--sun {
-  opacity: 0.45;
+  display: block;
 }
 
 :root[data-theme="dark"] .theme-switch__icon--moon {
-  opacity: 1;
+  display: none;
 }
 
 .controls {
@@ -835,7 +804,7 @@ button:disabled {
 
 .code-copy-btn:hover {
   border-color: var(--display-border);
-  color: var(--text);
+  color: var(--code-text);
 }
 
 .code-copy-btn:active {

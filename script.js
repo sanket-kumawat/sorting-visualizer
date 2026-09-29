@@ -88,13 +88,11 @@ function readStoredTheme() {
 
 function applyTheme(theme, { persist = false } = {}) {
   const nextTheme = theme === 'dark' ? 'dark' : 'light';
+  const actionLabel =
+    nextTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
   document.documentElement.dataset.theme = nextTheme;
-  themeToggle.setAttribute(
-    'aria-checked',
-    nextTheme === 'dark' ? 'true' : 'false',
-  );
-  themeToggle.title =
-    nextTheme === 'dark' ? 'Use light theme' : 'Use dark theme';
+  themeToggle.setAttribute('aria-label', actionLabel);
+  themeToggle.title = actionLabel;
 
   if (persist) {
     try {
