@@ -261,9 +261,6 @@ function precomputeSteps(algoFn, arr) {
 
 function setStepMessage(text) {
   stepMessageEl.textContent = text || IDLE_STEP_MESSAGE;
-  stepMessageEl.classList.remove('is-updating');
-  void stepMessageEl.offsetWidth;
-  stepMessageEl.classList.add('is-updating');
 }
 
 function applyStep(step) {
