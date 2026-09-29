@@ -45,7 +45,6 @@ const swapsEl = document.getElementById('swaps-count');
 const stepsEl = document.getElementById('steps-count');
 const stepMessageEl = document.getElementById('step-message');
 const themeToggle = document.getElementById('theme-toggle');
-const themeToggleLabel = themeToggle.querySelector('.theme-switch__label');
 
 const IDLE_STEP_MESSAGE =
   'Press Start or step forward to see what the algorithm is doing.';
@@ -69,8 +68,11 @@ const complexityStable = document.getElementById('complexity-stable');
 const complexityDesc = document.getElementById('complexity-desc');
 const complexityHeading = document.getElementById('complexity-heading');
 const algorithmDefinition = document.getElementById('algorithm-definition');
+const algorithmSteps = document.getElementById('algorithm-steps');
+const algorithmSource = document.getElementById('algorithm-source');
 const codeLangTabs = document.getElementById('code-lang-tabs');
 const codeView = document.getElementById('code-view');
+const codeCopyBtn = document.getElementById('code-copy-btn');
 
 /** Remembered for the session; default JavaScript. */
 let selectedLanguage = 'javascript';
@@ -87,8 +89,10 @@ function readStoredTheme() {
 function applyTheme(theme, { persist = false } = {}) {
   const nextTheme = theme === 'dark' ? 'dark' : 'light';
   document.documentElement.dataset.theme = nextTheme;
-  themeToggle.setAttribute('aria-checked', nextTheme === 'dark' ? 'true' : 'false');
-  themeToggleLabel.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
+  themeToggle.setAttribute(
+    'aria-checked',
+    nextTheme === 'dark' ? 'true' : 'false',
+  );
   themeToggle.title =
     nextTheme === 'dark' ? 'Use light theme' : 'Use dark theme';
 
@@ -117,6 +121,17 @@ function updateComplexityPanel(key = algorithmSelect.value) {
   complexityHeading.textContent = meta.name;
   complexityDesc.textContent = meta.desc;
   algorithmDefinition.textContent = meta.definition;
+  algorithmSteps.replaceChildren();
+  for (const step of meta.steps) {
+    const item = document.createElement('li');
+    item.textContent = step;
+    algorithmSteps.appendChild(item);
+  }
+  algorithmSource.href = meta.source;
+  algorithmSource.setAttribute(
+    'aria-label',
+    `Read the ${meta.name} reference on GeeksforGeeks`,
+  );
   complexityBest.textContent = meta.best;
   complexityAvg.textContent = meta.avg;
   complexityWorst.textContent = meta.worst;
@@ -131,10 +146,55 @@ function updateCodePanel(
   const byAlgo = codeSnippets[algoKey];
   const source = byAlgo && byAlgo[lang];
   codeView.textContent = source || '// No snippet available.';
+  codeCopyBtn.textContent = 'Copy';
+  codeCopyBtn.title = 'Copy code';
+  codeCopyBtn.classList.remove('is-copied');
 
   for (const btn of codeLangTabs.querySelectorAll('.code-tabs__btn')) {
     btn.classList.toggle('is-active', btn.dataset.lang === lang);
-    btn.setAttribute('aria-selected', btn.dataset.lang === lang ? 'true' : 'false');
+    btn.setAttribute(
+      'aria-selected',
+      btn.dataset.lang === lang ? 'true' : 'false',
+    );
+  }
+}
+
+function fallbackCopyText(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand('copy');
+  textarea.remove();
+  return copied;
+}
+
+async function copyCurrentCode() {
+  const source = codeView.textContent;
+  if (!source) return;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(source);
+    } else if (!fallbackCopyText(source)) {
+      throw new Error('Copy command was rejected');
+    }
+
+    codeCopyBtn.textContent = 'Copied';
+    codeCopyBtn.title = 'Code copied';
+    codeCopyBtn.classList.add('is-copied');
+  } catch {
+    codeCopyBtn.textContent = 'Selected';
+    codeCopyBtn.title = 'Press Ctrl or Command + C to copy the selected code';
+    codeCopyBtn.classList.remove('is-copied');
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(codeView);
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 }
 
@@ -238,7 +298,8 @@ function hasPreparedSteps() {
 
 function syncControlState() {
   const paused = isPaused();
-  const scrubbing = hasPreparedSteps() && stepIndex > 0 && stepIndex < steps.length;
+  const scrubbing =
+    hasPreparedSteps() && stepIndex > 0 && stepIndex < steps.length;
   const inSession = isRunning || scrubbing;
 
   startBtn.disabled = isRunning;
@@ -505,7 +566,11 @@ function stepForward() {
   if (step.type === 'done' || stepIndex >= steps.length) {
     stepIndex = totalSteps;
     for (let i = 0; i < currentArray.length; i++) sortedIndices.add(i);
-    render({ type: 'sorted', indices: [...sortedIndices], array: currentArray });
+    render({
+      type: 'sorted',
+      indices: [...sortedIndices],
+      array: currentArray,
+    });
     updateStats();
   }
 
@@ -613,6 +678,7 @@ stepBackBtn.addEventListener('click', stepBackward);
 stepFwdBtn.addEventListener('click', stepForward);
 resetBtn.addEventListener('click', reset);
 themeToggle.addEventListener('click', toggleTheme);
+codeCopyBtn.addEventListener('click', copyCurrentCode);
 document.addEventListener('keydown', onKeyDown);
 
 if (typeof systemThemeQuery.addEventListener === 'function') {

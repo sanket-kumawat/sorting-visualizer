@@ -728,6 +728,34 @@ button:disabled {
   line-height: 1.5;
 }
 
+.about__steps {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.8rem 0 0;
+  padding-left: 1.15rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.about__steps li::marker {
+  color: var(--display-border);
+  font-weight: 700;
+}
+
+.about__source {
+  display: inline-block;
+  margin-top: 0.7rem;
+  color: var(--focus);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-underline-offset: 0.2em;
+}
+
+.about__source:hover {
+  color: var(--text);
+}
+
 /* —— Code panel —— */
 
 .code-panel {
@@ -745,6 +773,14 @@ button:disabled {
 
 .code-panel__header .panel__title {
   margin-bottom: 0;
+}
+
+.code-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .code-tabs {
@@ -776,6 +812,39 @@ button:disabled {
   border-color: var(--display-border);
   color: var(--text);
   background: var(--display);
+}
+
+.code-copy-btn {
+  min-width: 5.3rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm);
+  background: var(--code-bg);
+  color: var(--code-text);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    transform 90ms ease;
+}
+
+.code-copy-btn:hover {
+  border-color: var(--display-border);
+  color: var(--text);
+}
+
+.code-copy-btn:active {
+  transform: translateY(2px);
+}
+
+.code-copy-btn.is-copied {
+  border-color: var(--sorted);
+  color: var(--sorted);
 }
 
 .code-block {

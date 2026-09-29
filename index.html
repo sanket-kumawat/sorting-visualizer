@@ -1,197 +1,397 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sorting Visualizer</title>
-  <script>
-    (() => {
-      const key = 'sorting-visualizer-theme';
-      let saved = null;
-      try {
-        saved = localStorage.getItem(key);
-      } catch {}
-      const theme =
-        saved === 'light' || saved === 'dark'
-          ? saved
-          : matchMedia('(prefers-color-scheme: dark)').matches
-            ? 'dark'
-            : 'light';
-      document.documentElement.dataset.theme = theme;
-    })();
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="app">
-    <header class="header">
-      <h1 class="brand">Sorting Visualizer</h1>
-      <p class="tagline">Watch comparison-based sorts unfold step by step.</p>
-      <button
-        type="button"
-        id="theme-toggle"
-        class="theme-switch"
-        role="switch"
-        aria-label="Dark theme"
-        aria-checked="false"
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Sorting Visualizer</title>
+    <script>
+      (() => {
+        const key = 'sorting-visualizer-theme';
+        let saved = null;
+        try {
+          saved = localStorage.getItem(key);
+        } catch {}
+        const theme =
+          saved === 'light' || saved === 'dark'
+            ? saved
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="style.css"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <h1 class="brand">Sorting Visualizer</h1>
+        <p class="tagline">Watch comparison-based sorts unfold step by step.</p>
+        <button
+          type="button"
+          id="theme-toggle"
+          class="theme-switch"
+          role="switch"
+          aria-label="Dark theme"
+          aria-checked="false"
+        >
+          <span
+            class="theme-switch__track"
+            aria-hidden="true"
+          >
+            <svg
+              class="theme-switch__icon theme-switch__icon--sun"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <circle
+                cx="8"
+                cy="8"
+                r="2.5"
+                stroke="currentColor"
+              />
+              <path
+                d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.42 1.42M11.53 11.53l1.42 1.42M12.95 3.05l-1.42 1.42M4.47 11.53l-1.42 1.42"
+                stroke="currentColor"
+                stroke-linecap="round"
+              />
+            </svg>
+            <svg
+              class="theme-switch__icon theme-switch__icon--moon"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <path
+                d="M13.4 10.15A5.6 5.6 0 0 1 5.85 2.6 5.7 5.7 0 1 0 13.4 10.15Z"
+                stroke="currentColor"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span class="theme-switch__thumb"></span>
+          </span>
+        </button>
+      </header>
+
+      <section
+        class="controls"
+        aria-label="Visualizer controls"
       >
-        <span class="theme-switch__track" aria-hidden="true">
-          <svg class="theme-switch__icon theme-switch__icon--sun" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="2.5" stroke="currentColor" />
-            <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.42 1.42M11.53 11.53l1.42 1.42M12.95 3.05l-1.42 1.42M4.47 11.53l-1.42 1.42" stroke="currentColor" stroke-linecap="round" />
-          </svg>
-          <svg class="theme-switch__icon theme-switch__icon--moon" viewBox="0 0 16 16" fill="none">
-            <path d="M13.4 10.15A5.6 5.6 0 0 1 5.85 2.6 5.7 5.7 0 1 0 13.4 10.15Z" stroke="currentColor" stroke-linejoin="round" />
-          </svg>
-          <span class="theme-switch__thumb"></span>
-        </span>
-        <span class="theme-switch__label">Dark</span>
-      </button>
-    </header>
+        <div class="control-group control-group--input">
+          <label for="array-input">Array</label>
+          <div class="input-row">
+            <input
+              type="text"
+              id="array-input"
+              placeholder="e.g. 64, 34, 25, 12, 22, 11, 90"
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="array-error"
+            />
+            <button
+              type="button"
+              id="autofill-btn"
+              class="btn btn--secondary"
+            >
+              Auto-fill
+            </button>
+          </div>
+          <p
+            id="array-error"
+            class="input-error"
+            role="alert"
+            hidden
+          ></p>
+        </div>
 
-    <section class="controls" aria-label="Visualizer controls">
-      <div class="control-group control-group--input">
-        <label for="array-input">Array</label>
-        <div class="input-row">
+        <div class="control-group">
+          <label for="algorithm-select">Algorithm</label>
+          <select id="algorithm-select">
+            <option value="bubble">Bubble Sort</option>
+            <option value="selection">Selection Sort</option>
+            <option value="insertion">Insertion Sort</option>
+            <option value="merge">Merge Sort</option>
+            <option value="quick">Quick Sort</option>
+            <option value="heap">Heap Sort</option>
+          </select>
+        </div>
+
+        <div class="control-group control-group--actions">
+          <span class="control-label">Playback</span>
+          <div class="btn-row">
+            <button
+              type="button"
+              id="start-btn"
+              class="btn btn--primary"
+            >
+              Start
+            </button>
+            <button
+              type="button"
+              id="pause-btn"
+              class="btn btn--secondary"
+              disabled
+            >
+              Pause
+            </button>
+            <button
+              type="button"
+              id="step-back-btn"
+              class="btn btn--ghost"
+              title="Step back (←)"
+              aria-label="Step back"
+            >
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M10.5 3.5 6 8l4.5 4.5"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              id="step-fwd-btn"
+              class="btn btn--ghost"
+              title="Step forward (→)"
+              aria-label="Step forward"
+            >
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="m5.5 3.5 4.5 4.5-4.5 4.5"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              id="reset-btn"
+              class="btn btn--ghost"
+            >
+              Reset
+            </button>
+          </div>
+          <p class="shortcuts-hint">Space pause · ← → step</p>
+        </div>
+
+        <div class="control-group control-group--speed">
+          <label for="speed-slider">
+            Speed
+            <span
+              id="speed-value"
+              class="speed-value"
+              >50</span
+            >
+          </label>
           <input
-            type="text"
-            id="array-input"
-            placeholder="e.g. 64, 34, 25, 12, 22, 11, 90"
-            autocomplete="off"
-            spellcheck="false"
-            aria-describedby="array-error"
+            type="range"
+            id="speed-slider"
+            min="1"
+            max="100"
+            value="50"
           />
-          <button type="button" id="autofill-btn" class="btn btn--secondary">Auto-fill</button>
         </div>
-        <p id="array-error" class="input-error" role="alert" hidden></p>
-      </div>
+      </section>
 
-      <div class="control-group">
-        <label for="algorithm-select">Algorithm</label>
-        <select id="algorithm-select">
-          <option value="bubble">Bubble Sort</option>
-          <option value="selection">Selection Sort</option>
-          <option value="insertion">Insertion Sort</option>
-          <option value="merge">Merge Sort</option>
-          <option value="quick">Quick Sort</option>
-          <option value="heap">Heap Sort</option>
-        </select>
-      </div>
+      <main
+        class="visualizer"
+        aria-label="Bar chart visualization"
+      >
+        <ul
+          class="legend"
+          aria-label="Color legend"
+        >
+          <li>
+            <span class="legend__swatch legend__swatch--compare"></span>Compare
+          </li>
+          <li>
+            <span class="legend__swatch legend__swatch--swap"></span>Swap / Set
+          </li>
+          <li>
+            <span class="legend__swatch legend__swatch--pivot"></span>Pivot
+          </li>
+          <li>
+            <span class="legend__swatch legend__swatch--sorted"></span>Sorted
+          </li>
+        </ul>
+        <p
+          id="step-message"
+          class="step-message"
+          aria-live="polite"
+        >
+          Press Start or step forward to see what the algorithm is doing.
+        </p>
+        <div
+          id="bars-container"
+          class="bars-container"
+          role="img"
+          aria-label="Sorting bars"
+        ></div>
+      </main>
 
-      <div class="control-group control-group--actions">
-        <span class="control-label">Playback</span>
-        <div class="btn-row">
-          <button type="button" id="start-btn" class="btn btn--primary">Start</button>
-          <button type="button" id="pause-btn" class="btn btn--secondary" disabled>Pause</button>
-          <button type="button" id="step-back-btn" class="btn btn--ghost" title="Step back (←)" aria-label="Step back">
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M10.5 3.5 6 8l4.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </button>
-          <button type="button" id="step-fwd-btn" class="btn btn--ghost" title="Step forward (→)" aria-label="Step forward">
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="m5.5 3.5 4.5 4.5-4.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </button>
-          <button type="button" id="reset-btn" class="btn btn--ghost">Reset</button>
-        </div>
-        <p class="shortcuts-hint">Space pause · ← → step</p>
-      </div>
+      <aside class="sidebar">
+        <section
+          class="panel"
+          aria-labelledby="stats-heading"
+        >
+          <h2
+            id="stats-heading"
+            class="panel__title"
+          >
+            Stats
+          </h2>
+          <dl class="stats">
+            <div class="stat">
+              <dt>Comparisons</dt>
+              <dd id="comparisons-count">0</dd>
+            </div>
+            <div class="stat">
+              <dt>Writes</dt>
+              <dd id="swaps-count">0</dd>
+            </div>
+            <div class="stat">
+              <dt>Steps</dt>
+              <dd id="steps-count">0 / 0</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
 
-      <div class="control-group control-group--speed">
-        <label for="speed-slider">
-          Speed
-          <span id="speed-value" class="speed-value">50</span>
-        </label>
-        <input type="range" id="speed-slider" min="1" max="100" value="50" />
-      </div>
-    </section>
-
-    <main class="visualizer" aria-label="Bar chart visualization">
-      <ul class="legend" aria-label="Color legend">
-        <li><span class="legend__swatch legend__swatch--compare"></span>Compare</li>
-        <li><span class="legend__swatch legend__swatch--swap"></span>Swap / Set</li>
-        <li><span class="legend__swatch legend__swatch--pivot"></span>Pivot</li>
-        <li><span class="legend__swatch legend__swatch--sorted"></span>Sorted</li>
-      </ul>
-      <p id="step-message" class="step-message" aria-live="polite">
-        Press Start or step forward to see what the algorithm is doing.
-      </p>
-      <div id="bars-container" class="bars-container" role="img" aria-label="Sorting bars"></div>
-    </main>
-
-    <aside class="sidebar">
-      <section class="panel" aria-labelledby="stats-heading">
-        <h2 id="stats-heading" class="panel__title">Stats</h2>
-        <dl class="stats">
-          <div class="stat">
-            <dt>Comparisons</dt>
-            <dd id="comparisons-count">0</dd>
+      <section
+        class="panel panel--about"
+        aria-labelledby="complexity-heading"
+      >
+        <h2
+          id="complexity-heading"
+          class="panel__title"
+        >
+          About
+        </h2>
+        <p
+          id="complexity-desc"
+          class="about__subtitle"
+        >
+          Repeatedly swaps adjacent out-of-order pairs.
+        </p>
+        <p
+          id="algorithm-definition"
+          class="about__definition"
+        >
+          Bubble sort is a simple comparison-based algorithm that repeatedly
+          checks neighboring values and swaps them when they are in the wrong
+          order.
+        </p>
+        <ul
+          id="algorithm-steps"
+          class="about__steps"
+        >
+          <li>Make repeated passes through the array.</li>
+          <li>
+            Compare adjacent values and swap them when the left value is larger.
+          </li>
+          <li>Each pass places the largest remaining value at the end.</li>
+          <li>Stop early when a complete pass makes no swaps.</li>
+        </ul>
+        <a
+          id="algorithm-source"
+          class="about__source"
+          href="https://www.geeksforgeeks.org/dsa/bubble-sort-algorithm/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Read the GeeksforGeeks reference</a
+        >
+        <h3 class="panel__subtitle">Complexity</h3>
+        <dl
+          class="complexity"
+          id="complexity-info"
+        >
+          <div class="complexity__row">
+            <dt>Best</dt>
+            <dd id="complexity-best">O(n)</dd>
           </div>
-          <div class="stat">
-            <dt>Writes</dt>
-            <dd id="swaps-count">0</dd>
+          <div class="complexity__row">
+            <dt>Average</dt>
+            <dd id="complexity-avg">O(n²)</dd>
           </div>
-          <div class="stat">
-            <dt>Steps</dt>
-            <dd id="steps-count">0 / 0</dd>
+          <div class="complexity__row">
+            <dt>Worst</dt>
+            <dd id="complexity-worst">O(n²)</dd>
+          </div>
+          <div class="complexity__row">
+            <dt>Space</dt>
+            <dd id="complexity-space">O(1)</dd>
+          </div>
+          <div class="complexity__row">
+            <dt>Stable</dt>
+            <dd id="complexity-stable">Yes</dd>
           </div>
         </dl>
       </section>
-    </aside>
 
-    <section class="panel panel--about" aria-labelledby="complexity-heading">
-      <h2 id="complexity-heading" class="panel__title">About</h2>
-      <p id="complexity-desc" class="about__subtitle">
-        Repeatedly swaps adjacent out-of-order pairs.
-      </p>
-      <p id="algorithm-definition" class="about__definition">
-        Bubble sort walks the array from left to right, comparing each pair of
-        neighbors and swapping them when they are out of order. Each full pass
-        pushes the next-largest value toward the end. It is stable and uses
-        constant extra memory, but its quadratic average cost makes it mainly
-        useful for teaching.
-      </p>
-      <h3 class="panel__subtitle">Complexity</h3>
-      <dl class="complexity" id="complexity-info">
-        <div class="complexity__row">
-          <dt>Best</dt>
-          <dd id="complexity-best">O(n)</dd>
+      <section
+        class="panel code-panel"
+        aria-labelledby="code-heading"
+      >
+        <div class="code-panel__header">
+          <h2
+            id="code-heading"
+            class="panel__title"
+          >
+            Code
+          </h2>
+          <div class="code-panel__actions">
+            <div
+              id="code-lang-tabs"
+              class="code-tabs"
+              role="tablist"
+              aria-label="Programming language"
+            ></div>
+            <button
+              type="button"
+              id="code-copy-btn"
+              class="code-copy-btn"
+              aria-label="Copy code"
+            >
+              Copy
+            </button>
+          </div>
         </div>
-        <div class="complexity__row">
-          <dt>Average</dt>
-          <dd id="complexity-avg">O(n²)</dd>
-        </div>
-        <div class="complexity__row">
-          <dt>Worst</dt>
-          <dd id="complexity-worst">O(n²)</dd>
-        </div>
-        <div class="complexity__row">
-          <dt>Space</dt>
-          <dd id="complexity-space">O(1)</dd>
-        </div>
-        <div class="complexity__row">
-          <dt>Stable</dt>
-          <dd id="complexity-stable">Yes</dd>
-        </div>
-      </dl>
-    </section>
+        <pre class="code-block"><code id="code-view"></code></pre>
+      </section>
+    </div>
 
-    <section class="panel code-panel" aria-labelledby="code-heading">
-      <div class="code-panel__header">
-        <h2 id="code-heading" class="panel__title">Code</h2>
-        <div id="code-lang-tabs" class="code-tabs" role="tablist" aria-label="Programming language"></div>
-      </div>
-      <pre class="code-block"><code id="code-view"></code></pre>
-    </section>
-  </div>
-
-  <script src="algorithms.js"></script>
-  <script src="algorithm-info.js"></script>
-  <script src="code-snippets.js"></script>
-  <script src="script.js"></script>
-</body>
+    <script src="algorithms.js"></script>
+    <script src="algorithm-info.js"></script>
+    <script src="code-snippets.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
