@@ -181,6 +181,24 @@ button:disabled {
   border-color: var(--accent);
 }
 
+#array-input.input--invalid {
+  border-color: var(--swap);
+}
+
+#array-input.input--invalid:focus {
+  border-color: var(--swap);
+}
+
+.input-error {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--swap);
+}
+
+.input-error[hidden] {
+  display: none;
+}
+
 #algorithm-select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%238b9cb3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
