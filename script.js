@@ -43,6 +43,10 @@ const speedValue = document.getElementById('speed-value');
 const comparisonsEl = document.getElementById('comparisons-count');
 const swapsEl = document.getElementById('swaps-count');
 const stepsEl = document.getElementById('steps-count');
+const stepMessageEl = document.getElementById('step-message');
+
+const IDLE_STEP_MESSAGE =
+  'Press Start or step forward to see what the algorithm is doing.';
 
 const algorithms = {
   bubble: bubbleSort,
@@ -274,6 +278,10 @@ function precomputeSteps(algoFn, arr) {
   return Array.from(algoFn(arr));
 }
 
+function setStepMessage(text) {
+  stepMessageEl.textContent = text || IDLE_STEP_MESSAGE;
+}
+
 function applyStep(step) {
   currentArray = step.array.slice();
   countStepType(step.type);
@@ -282,6 +290,7 @@ function applyStep(step) {
     for (const i of step.indices) sortedIndices.add(i);
   }
 
+  setStepMessage(step.message);
   updateStats();
   render(step);
 }
@@ -323,6 +332,9 @@ function finishPlayback() {
 
   for (let i = 0; i < currentArray.length; i++) sortedIndices.add(i);
   render({ type: 'sorted', indices: [...sortedIndices], array: currentArray });
+  if (steps.length) {
+    setStepMessage(steps[steps.length - 1].message);
+  }
   updateStats();
   syncControlState();
 }
@@ -341,6 +353,7 @@ function reset() {
   arrayInput.value = currentArray.join(', ');
   clearError();
   clearStats();
+  setStepMessage(IDLE_STEP_MESSAGE);
   render({ type: null, indices: [], array: currentArray });
   syncControlState();
 }
@@ -446,9 +459,12 @@ function rebuildStateTo(targetIndex) {
   stepIndex = targetIndex;
 
   if (targetIndex === 0) {
+    setStepMessage(IDLE_STEP_MESSAGE);
     render({ type: null, indices: [], array: currentArray });
   } else {
-    render(steps[targetIndex - 1]);
+    const step = steps[targetIndex - 1];
+    setStepMessage(step.message);
+    render(step);
   }
   updateStats();
 }

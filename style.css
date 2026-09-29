@@ -151,6 +151,18 @@ button:disabled {
 .legend__swatch--pivot { background: var(--pivot); }
 .legend__swatch--sorted { background: var(--sorted); }
 
+.step-message {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text);
+  min-height: 2.8em;
+}
+
 .shortcuts-hint {
   font-size: 0.75rem;
   color: var(--text-muted);
