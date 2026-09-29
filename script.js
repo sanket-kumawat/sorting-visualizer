@@ -57,63 +57,6 @@ const algorithms = {
   heap: heapSort,
 };
 
-const info = {
-  bubble: {
-    name: 'Bubble Sort',
-    best: 'O(n)',
-    avg: 'O(n²)',
-    worst: 'O(n²)',
-    space: 'O(1)',
-    stable: true,
-    desc: 'Repeatedly swaps adjacent out-of-order pairs.',
-  },
-  selection: {
-    name: 'Selection Sort',
-    best: 'O(n²)',
-    avg: 'O(n²)',
-    worst: 'O(n²)',
-    space: 'O(1)',
-    stable: false,
-    desc: 'Scans for the minimum and swaps it into place each pass.',
-  },
-  insertion: {
-    name: 'Insertion Sort',
-    best: 'O(n)',
-    avg: 'O(n²)',
-    worst: 'O(n²)',
-    space: 'O(1)',
-    stable: true,
-    desc: 'Inserts each element into the sorted prefix by shifting larger ones.',
-  },
-  merge: {
-    name: 'Merge Sort',
-    best: 'O(n log n)',
-    avg: 'O(n log n)',
-    worst: 'O(n log n)',
-    space: 'O(n)',
-    stable: true,
-    desc: 'Divides the array in half, sorts each half, then merges them.',
-  },
-  quick: {
-    name: 'Quick Sort',
-    best: 'O(n log n)',
-    avg: 'O(n log n)',
-    worst: 'O(n²)',
-    space: 'O(log n)',
-    stable: false,
-    desc: 'Partitions around a pivot, then sorts the two sides recursively.',
-  },
-  heap: {
-    name: 'Heap Sort',
-    best: 'O(n log n)',
-    avg: 'O(n log n)',
-    worst: 'O(n log n)',
-    space: 'O(1)',
-    stable: false,
-    desc: 'Builds a max-heap, then repeatedly extracts the largest element.',
-  },
-};
-
 const complexityBest = document.getElementById('complexity-best');
 const complexityAvg = document.getElementById('complexity-avg');
 const complexityWorst = document.getElementById('complexity-worst');
@@ -121,18 +64,20 @@ const complexitySpace = document.getElementById('complexity-space');
 const complexityStable = document.getElementById('complexity-stable');
 const complexityDesc = document.getElementById('complexity-desc');
 const complexityHeading = document.getElementById('complexity-heading');
+const algorithmDefinition = document.getElementById('algorithm-definition');
 
 function updateComplexityPanel(key = algorithmSelect.value) {
   const meta = info[key];
   if (!meta) return;
 
   complexityHeading.textContent = meta.name;
+  complexityDesc.textContent = meta.desc;
+  algorithmDefinition.textContent = meta.definition;
   complexityBest.textContent = meta.best;
   complexityAvg.textContent = meta.avg;
   complexityWorst.textContent = meta.worst;
   complexitySpace.textContent = meta.space;
   complexityStable.textContent = meta.stable ? 'Yes' : 'No';
-  complexityDesc.textContent = meta.desc;
 }
 
 /**

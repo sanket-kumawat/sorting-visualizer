@@ -98,8 +98,19 @@
         </dl>
       </section>
 
-      <section class="panel" aria-labelledby="complexity-heading">
-        <h2 id="complexity-heading" class="panel__title">Complexity</h2>
+      <section class="panel panel--about" aria-labelledby="complexity-heading">
+        <h2 id="complexity-heading" class="panel__title">About</h2>
+        <p id="complexity-desc" class="about__subtitle">
+          Repeatedly swaps adjacent out-of-order pairs.
+        </p>
+        <p id="algorithm-definition" class="about__definition">
+          Bubble sort walks the array from left to right, comparing each pair of
+          neighbors and swapping them when they are out of order. Each full pass
+          pushes the next-largest value toward the end. It is stable and uses
+          constant extra memory, but its quadratic average cost makes it mainly
+          useful for teaching.
+        </p>
+        <h3 class="panel__subtitle">Complexity</h3>
         <dl class="complexity" id="complexity-info">
           <div class="complexity__row">
             <dt>Best</dt>
@@ -122,14 +133,12 @@
             <dd id="complexity-stable">Yes</dd>
           </div>
         </dl>
-        <p id="complexity-desc" class="complexity__desc">
-          Repeatedly swaps adjacent out-of-order pairs.
-        </p>
       </section>
     </aside>
   </div>
 
   <script src="algorithms.js"></script>
+  <script src="algorithm-info.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
